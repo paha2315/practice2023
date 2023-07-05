@@ -3,13 +3,16 @@ services:
   db:
     container_name: 'DB'
     image: postgres
+#    build:
+#      context: .
+#      dockerfile: Dockerfile-DB
     restart: always
     ports:
       - 5428:5432
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_DB=LBS
-#      - POSTGRES_PASSWORD=12345
+      - POSTGRES_PASSWORD=1234
       - PGDATA=/data/postgres
     volumes:
       - ./script.sql:/docker-entrypoint-initdb.d/init.sql
