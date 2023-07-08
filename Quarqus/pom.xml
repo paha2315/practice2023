@@ -4,7 +4,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>lr4</artifactId>
+    <artifactId>Quarkus</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
@@ -77,6 +77,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
             <version>2.16.4.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
         </dependency>
     </dependencies>
     <build>

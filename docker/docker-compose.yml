@@ -1,19 +1,29 @@
-version: '2'
+version: '3'
 services:
   db:
-    container_name: 'DB'
+    container_name: db
     image: postgres
-#    build:
-#      context: .
-#      dockerfile: Dockerfile-DB
     restart: always
     ports:
       - 5428:5432
     environment:
       - POSTGRES_USER=root
+      - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_DB=LBS
       - POSTGRES_PASSWORD=1234
       - PGDATA=/data/postgres
     volumes:
       - ./script.sql:/docker-entrypoint-initdb.d/init.sql
       - ./postgres:/data/postgres
+      
+  App:
+    container_name: App
+    image: microscope
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - quarkus.datasource.jdbc.url=jdbc:postgresql://db:5432/LBS
+      - quarkus.datasource.username=root
+      - quarkus.datasource.password=1234

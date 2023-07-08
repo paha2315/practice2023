@@ -1,24 +1,21 @@
-package com.example.controller;
+package practice;
 
-import com.example.entity.Buildings;
-import com.example.repository.BuildingsRepository;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.transaction.Transactional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Path("/")
-public class MyController {
+public class MyClass {
+
     @Inject
     BuildingsRepository BuildingsRepository;
 
@@ -26,11 +23,8 @@ public class MyController {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/update")
     public void updateFrom() throws FileNotFoundException {
-        String filename = "/home/paul/source/practice2023/lpu.json";
-        InputStream fis = new FileInputStream(filename);
-        JsonReader reader = Json.createReader(fis);
-        JsonArray personObject = reader.readArray();
-        BuildingsRepository.addOrModify(personObject);
+        String filename = Objects.requireNonNull(getClass().getResource("/home/paul/source/practice2023/lpu.json")).getAuthority();
+//        BuildingsRepository.addOrModify();
     }
 
     @GET
@@ -57,15 +51,6 @@ public class MyController {
         return "Added " + obj.getName();
     }
 
-    @POST
-    @Path("/addJson/")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
-    public void addJSON(JsonObject obj) throws SQLException {
-        BuildingsRepository.addOrModify(obj);
-
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/getAll")
@@ -81,5 +66,4 @@ public class MyController {
     public Buildings getByID(@PathParam("id") long id) {
         return BuildingsRepository.findById(id);
     }
-
 }

@@ -1,10 +1,8 @@
-package com.example.entity;
+package practice;
 
-import javax.json.JsonObject;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import io.vertx.core.json.JsonObject;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "Buildings")
@@ -58,16 +56,16 @@ public class Buildings {
     }
 
     public Buildings(JsonObject object) {
-        setId(Long.parseLong(object.getJsonString("ID").getString()));
-        setCity_type(object.getJsonString("CITYTYPE").getString());
-        setCity_name(object.getJsonString("CITYNAME").getString());
-        setRegeon_name(object.getJsonString("REGIONLNAME").getString());
-        setFull_addr(object.getJsonString("LADDRNAME").getString());
-        setName(object.getJsonString("LNAME").getString());
-        setGeo_lat(Double.parseDouble(object.getJsonString("GEO_LAT").getString()));
-        setGeo_lon(Double.parseDouble(object.getJsonString("GEO_LON").getString()));
-        setMed_care_name(object.getJsonString("MEDCARENAME").getString());
-        setLast_update(object.getJsonNumber("LAST_UPDATE").longValue());
+        setId(object.getInteger("ID"));
+        setCity_type(object.getString("CITYTYPE"));
+        setCity_name(object.getString("CITYNAME"));
+        setRegeon_name(object.getString("REGIONLNAME"));
+        setFull_addr(object.getString("LADDRNAME"));
+        setName(object.getString("LNAME"));
+        setGeo_lat(object.getDouble("GEO_LAT"));
+        setGeo_lon(object.getDouble("GEO_LON"));
+        setMed_care_name(object.getString("MEDCARENAME"));
+        setLast_update(object.getLong("LAST_UPDATE"));
     }
 
     public long getId() {
