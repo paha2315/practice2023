@@ -7,11 +7,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static java.lang.Math.cos;
+import static java.lang.Math.*;
 
 @ApplicationScoped
 public class BuildingsRepository implements PanacheRepository<Building> {
@@ -35,20 +33,28 @@ public class BuildingsRepository implements PanacheRepository<Building> {
         System.out.println("Out");
     }
 
+    static public double getDegrees(double radians) {
+        return radians * 180 / PI;
+    }
+
     public List<Building> getAllWith(double lat, double lon, double dist) {
-        double dlat = Building.getDegrees(dist / Building.R) * 1.2;
+        double dlat = getDegrees(dist / Building.R);
         double lat1 = lat - dlat;
         double lat2 = lat + dlat;
-        double dlon = dlat / cos(Building.getRadian(lon));
+        double dlon = dlat / cos(Building.getRadian(max(abs(lat1), abs(lat2))));
         double lon1 = lon - dlon;
         double lon2 = lon + dlon;
         List<Building> buildings = list("geo_lat >= ?1 and geo_lat <= ?2 and geo_lon >= ?3 and geo_lon <= ?4", lat1, lat2, lon1, lon2);
 //        List<Building> buildings = listAll();
         List<Building> result = new ArrayList<>();
+        Set<Map.Entry<String, String>> set = new HashSet<>();
         for (var building : buildings) {
             double dst = building.distance(lat, lon);
-            if (dst < dist)
+            Map.Entry<String, String> cur = new AbstractMap.SimpleEntry<>(building.getFull_addr(), building.getMed_care_name());
+            if (dst < dist && !set.contains(cur)) {
                 result.add(building);
+                set.add(cur);
+            }
         }
         return result;
     }

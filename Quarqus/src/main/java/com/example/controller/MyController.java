@@ -18,14 +18,9 @@ public class MyController {
     BuildingsRepository BuildingsRepository;
 
     @POST
-//    @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updateJSONS")
     public void updateFromJSONS(JsonArray jsonArray) {
-//        String filename = "/home/paul/source/practice2023/lpu.json";
-//        InputStream fis = new FileInputStream(filename);
-//        JsonReader reader = Json.createReader(fis);
-//        JsonArray personObject = reader.readArray();
         BuildingsRepository.addOrModify(jsonArray);
     }
 

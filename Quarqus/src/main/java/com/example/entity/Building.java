@@ -158,29 +158,28 @@ public class Building {
         return grad * PI / 180;
     }
 
-    static public double getDegrees(double radians) {
-        return radians * 180 / PI;
-    }
-
     static public double sqr(double src) {
         return src * src;
     }
 
     public double distance(double lat, double lon) {
-//        double dfi = getRadian(abs(lat - geo_lat));
-//        double mlat = getRadian(abs((lat + geo_lat) / 2));
-//        double dalpha = cos(mlat) * getRadian(abs(lon - geo_lon));
-//        return R * sqrt(dfi * dfi + dalpha * dalpha);
-//        return R * 2 * asin(sqrt(sqr(sin((geo_lat - lat) / 2)) + cos(geo_lat) * cos(lat) * sqr(sin(abs(geo_lat - lat) / 2))));
         double fi1 = getRadian(lat);
+        double sfi1 = sin(fi1);
+        double cfi1 = cos(fi1);
         double fi2 = getRadian(geo_lat);
+        double sfi2 = sin(fi2);
+        double cfi2 = cos(fi2);
         double dfi = fi2 - fi1;
         double alpha1 = getRadian(lon);
         double alpha2 = getRadian(geo_lon);
         double dalpha = alpha2 - alpha1;
-        double ch1 = cos(fi2) * sin(dalpha);
-        double ch2 = cos(fi1) * sin(fi2) - sin(fi1) * cos(fi2) * cos(dalpha);
-        double zn = sin(fi1) * sin(fi2) + cos(fi1) * cos(fi2) * cos(dalpha);
-        return R * atan(sqrt(sqr(ch1) + sqr(ch2)) / zn);
+        double cdalpha = cos(dalpha);
+        double sdalpha = sin(dalpha);
+//        return R * acos(sfi1 * sfi2 + cfi1 * cfi2 * cdalpha); //Сферическая теорема косинусов
+//        return R * 2 * asin(sqrt(sqr(sin(dfi / 2)) + cfi1 * cfi2 * sqr(sin(dalpha / 2)))); //Формула гаверсинусов
+        double ch1 = cfi2 * sdalpha;
+        double ch2 = cfi1 * sfi2 - sfi1 * cfi2 * cdalpha;
+        double zn = sfi1 * sfi2 + cfi1 * cfi2 * cdalpha;
+        return R * atan(sqrt(sqr(ch1) + sqr(ch2)) / zn); //Формула гаверсинусов модификация для антиподов
     }
 }
