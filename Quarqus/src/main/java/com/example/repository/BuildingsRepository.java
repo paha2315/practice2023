@@ -14,12 +14,17 @@ import static java.lang.Math.*;
 @ApplicationScoped
 public class BuildingsRepository implements PanacheRepository<Building> {
 
+    static public double getDegrees(double radians) {
+        return radians * 180 / PI;
+    }
+
     @Transactional
     public void addOrModify(Building obj) {
         Optional<Building> old = findByIdOptional(obj.getId());
-        if (old.isPresent() && (old.get().getLast_update() >= obj.getLast_update()))
-            return;
-        persist(obj);
+        if (old.isEmpty()) persist(obj);
+        else if (old.get().getLast_update().before(obj.getLast_update()))
+            update(old.get().getChangeQuery(obj) + " where id = " + obj.getId());
+
     }
 
     public void addOrModify(JsonObject obj) {
@@ -33,18 +38,25 @@ public class BuildingsRepository implements PanacheRepository<Building> {
         System.out.println("Out");
     }
 
-    static public double getDegrees(double radians) {
-        return radians * 180 / PI;
-    }
-
     public List<Building> getAllWith(double lat, double lon, double dist) {
         double dlat = getDegrees(dist / Building.R);
-        double lat1 = lat - dlat;
-        double lat2 = lat + dlat;
-        double dlon = dlat / cos(Building.getRadian(max(abs(lat1), abs(lat2))));
-        double lon1 = lon - dlon;
-        double lon2 = lon + dlon;
-        List<Building> buildings = list("geo_lat >= ?1 and geo_lat <= ?2 and geo_lon >= ?3 and geo_lon <= ?4", lat1, lat2, lon1, lon2);
+        List<Building> buildings;
+        if ((90 - abs(lat)) < dlat) {
+            if (lat > 0) {
+                double latq = lat - dlat;
+                buildings = list("geo_lat >= ?1", latq);
+            } else {
+                double latq = lat + dlat;
+                buildings = list("geo_lat <= ?1", latq);
+            }
+        } else {
+            double lat1 = lat - dlat;
+            double lat2 = lat + dlat;
+            double dlon = dlat / cos(Building.getRadian(max(abs(lat1), abs(lat2))));
+            double lon1 = lon - dlon;
+            double lon2 = lon + dlon;
+            buildings = list("geo_lat >= ?1 and geo_lat <= ?2 and geo_lon >= ?3 and geo_lon <= ?4", lat1, lat2, lon1, lon2);
+        }
 //        List<Building> buildings = listAll();
         List<Building> result = new ArrayList<>();
         Set<Map.Entry<String, String>> set = new HashSet<>();

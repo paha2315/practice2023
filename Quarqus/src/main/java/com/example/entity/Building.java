@@ -5,6 +5,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Objects;
 
 import static java.lang.Math.*;
 
@@ -43,7 +46,7 @@ public class Building {
     private String med_care_name;
 
     @Column(name = "last_update")
-    private long last_update;
+    private Timestamp last_update;
 
     public Building() {
     }
@@ -61,17 +64,62 @@ public class Building {
         setLast_update(last_update);
     }
 
+    protected String getString(JsonObject object, String tag) {
+        String res = object.getJsonString(tag).getString();
+        if (res == null)
+            return "";
+        else return res;
+    }
+
+    protected Long getLongFromString(JsonObject object, String tag) {
+        String parcing = getString(object, tag);
+        if (Objects.equals(parcing, ""))
+            return 0L;
+        else
+            return Long.parseLong(parcing);
+    }
+
+    protected Double getDoubleFromString(JsonObject object, String tag) {
+        String parcing = getString(object, tag);
+        if (Objects.equals(parcing, ""))
+            return 0.0;
+        else
+            return Double.parseDouble(parcing);
+    }
+
+    protected Long getLongFromNumber(JsonObject object, String tag) {
+        return object.getJsonNumber(tag).longValue();
+    }
+
     public Building(JsonObject object) {
-        setId(Long.parseLong(object.getJsonString("ID").getString()));
-        setCity_type(object.getJsonString("CITYTYPE").getString());
-        setCity_name(object.getJsonString("CITYNAME").getString());
-        setRegeon_name(object.getJsonString("REGIONLNAME").getString());
-        setFull_addr(object.getJsonString("LADDRNAME").getString());
-        setName(object.getJsonString("LNAME").getString());
-        setGeo_lat(Double.parseDouble(object.getJsonString("GEO_LAT").getString()));
-        setGeo_lon(Double.parseDouble(object.getJsonString("GEO_LON").getString()));
-        setMed_care_name(object.getJsonString("MEDCARENAME").getString());
-        setLast_update(object.getJsonNumber("LAST_UPDATE").longValue());
+//        setId(Long.parseLong(object.getJsonString("ID").getString()));
+        setId(getLongFromString(object, "ID"));
+//        setCity_type(object.getJsonString("CITYTYPE").getString());
+        setCity_type(getString(object, "CITYTYPE"));
+//        setCity_name(object.getJsonString("CITYNAME").getString());
+        setCity_name(getString(object, "CITYNAME"));
+//        setRegeon_name(object.getJsonString("REGIONLNAME").getString());
+        setRegeon_name(getString(object, "REGIONLNAME"));
+//        setFull_addr(object.getJsonString("LADDRNAME").getString());
+        setFull_addr(getString(object, "LADDRNAME"));
+//        setName(object.getJsonString("LNAME").getString());
+        setName(getString(object, "LNAME"));
+//        setGeo_lat(Double.parseDouble(object.getJsonString("GEO_LAT").getString()));
+        setGeo_lat(getDoubleFromString(object, "GEO_LAT"));
+//        setGeo_lon(Double.parseDouble(object.getJsonString("GEO_LON").getString()));
+        setGeo_lon(getDoubleFromString(object, "GEO_LON"));
+//        setMed_care_name(object.getJsonString("MEDCARENAME").getString());
+        setMed_care_name(getString(object, "MEDCARENAME"));
+//        setLast_update(object.getJsonNumber("LAST_UPDATE").longValue());
+        setLast_update(getLongFromNumber(object, "LAST_UPDATE"));
+    }
+
+    static public double getRadian(double grad) {
+        return grad * PI / 180;
+    }
+
+    static public double sqr(double src) {
+        return src * src;
     }
 
     public long getId() {
@@ -146,20 +194,16 @@ public class Building {
         this.med_care_name = med_care_name;
     }
 
-    public long getLast_update() {
+    public Date getLast_update() {
         return last_update;
     }
 
     public void setLast_update(long last_update) {
+        this.last_update = new Timestamp(last_update * 1000);
+    }
+
+    public void setLast_update(Timestamp last_update) {
         this.last_update = last_update;
-    }
-
-    static public double getRadian(double grad) {
-        return grad * PI / 180;
-    }
-
-    static public double sqr(double src) {
-        return src * src;
     }
 
     public double distance(double lat, double lon) {
@@ -181,5 +225,26 @@ public class Building {
         double ch2 = cfi1 * sfi2 - sfi1 * cfi2 * cdalpha;
         double zn = sfi1 * sfi2 + cfi1 * cfi2 * cdalpha;
         return R * atan(sqrt(sqr(ch1) + sqr(ch2)) / zn); //Формула гаверсинусов модификация для антиподов
+    }
+
+    //    protected void add(Map<String, Object> map, String name, Object oldObj, Object newObj) {
+    protected String add(String name, Object oldObj, Object newObj) {
+        if (!Objects.equals(oldObj, newObj))
+            return ", " + name + " = '" + newObj + "'";
+        return "";
+    }
+
+    public String getChangeQuery(Building newObj) {
+        String query = "";
+        query += add("city_type", getCity_type(), newObj.getCity_type());
+        query += add("city_name", getCity_name(), newObj.getCity_name());
+        query += add("regeon_name", getRegeon_name(), newObj.getRegeon_name());
+        query += add("full_addr", getFull_addr(), newObj.getFull_addr());
+        query += add("name", getName(), newObj.getName());
+        query += add("geo_lat", getGeo_lat(), newObj.getGeo_lat());
+        query += add("geo_lon", getGeo_lon(), newObj.getGeo_lon());
+        query += add("med_care_name", getMed_care_name(), newObj.getMed_care_name());
+        query += add("last_update", getLast_update(), newObj.getLast_update());
+        return query.substring(2);
     }
 }

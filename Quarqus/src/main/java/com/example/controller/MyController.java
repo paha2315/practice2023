@@ -4,12 +4,17 @@ import com.example.entity.Building;
 import com.example.repository.BuildingsRepository;
 
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.sql.SQLException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Path("/")
@@ -54,4 +59,18 @@ public class MyController {
         return BuildingsRepository.findById(id);
     }
 
+    @POST
+    @Path("/load")
+    public void load(){
+        String filename = "/home/paul/source/practice2023/lpu.json";
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(filename);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        JsonReader reader = Json.createReader(fis);
+        JsonArray personObject = reader.readArray();
+        BuildingsRepository.addOrModify(personObject);
+    }
 }
