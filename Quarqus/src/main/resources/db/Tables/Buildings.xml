@@ -4,10 +4,24 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
-    <changeSet id="create-table-building" author="Liquibase">
+    <changeSet author="pnikanov" id="crete_buildings_sequence" runInTransaction="false" context="create"
+               dbms="postgresql">
+        <createSequence sequenceName="seq_buildings"
+                        startValue="1"
+                        minValue="1"
+                        incrementBy="1"
+                        dataType="bigint"/>
+    </changeSet>
+    <changeSet author="pnikanov" id="create_table_buildings" runInTransaction="false" context="create"
+               dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="Buildings"/>
+            </not>
+        </preConditions>
         <createTable tableName="Buildings">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
+            <column name="id" type="bigint" defaultValueComputed="nextval('seq_buildings')">
+                <constraints primaryKey="true" primaryKeyName="pk_product"/>
             </column>
             <column name="external_id" type="bigint"/>
             <column name="city_type" type="varchar(100)"/>
@@ -20,7 +34,9 @@
             <column name="med_care_name" type="varchar(255)"/>
             <column name="last_update" type="timestamp"/>
         </createTable>
-        <createSequence sequenceName="seq_id" cycle="true" minValue="0" startValue="0" incrementBy="1" dataType="bigint"/>
+        <createIndex indexName="idx_product_sysname" tableName="product">
+            <column name="sys_name"/>
+        </createIndex>
     </changeSet>
 
 </databaseChangeLog>

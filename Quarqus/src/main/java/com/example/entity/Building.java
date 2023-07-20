@@ -14,8 +14,8 @@ public class Building {
     public final static double R = 6372795;
     @Id
     @Column(name = "id")
-    @SequenceGenerator(name = "seq_id", sequenceName = "seq_id", allocationSize = 0, initialValue = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_id")
+    @SequenceGenerator(name = "seq_buildings", sequenceName = "seq_buildings", allocationSize = 0, initialValue = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_buildings")
 //    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
