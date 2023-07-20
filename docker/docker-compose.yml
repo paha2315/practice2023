@@ -27,3 +27,31 @@ services:
       - quarkus.datasource.jdbc.url=jdbc:postgresql://db:5432/LBS
       - quarkus.datasource.username=root
       - quarkus.datasource.password=1234
+      
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus_data:/etc/prometheus/
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+     
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    # if you are running as root then set it to 0
+    # else find the right id with the id -u command
+    user: '0'
+    ports:
+      - '3000:3000'
+    # adding the mount volume point which we create earlier
+    volumes:
+      - '$PWD/data:/var/lib/grafana'
+    volumes:
+      - ./grafana_data:/var/lib/grafana

@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.entity.Building;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,6 +14,20 @@ import static java.lang.Math.*;
 
 @ApplicationScoped
 public class BuildingsRepository implements PanacheRepository<Building> {
+//    java.util.logging.Logger log;
+//
+//    {
+//        log = Logger.getLogger(BuildingsRepository.class.getName());
+//        FileHandler fh = null;
+//        try {
+//            fh = new FileHandler("MyLogFile.log");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        log.addHandler(fh);
+//        SimpleFormatter formatter = new SimpleFormatter();
+//        fh.setFormatter(formatter);
+//    }
 
     static public double getDegrees(double radians) {
         return radians * 180 / PI;
@@ -20,13 +35,16 @@ public class BuildingsRepository implements PanacheRepository<Building> {
 
     @Transactional
     public void addOrModify(Building obj) {
-        Optional<Building> old = findByIdOptional(obj.getId());
-        if (old.isEmpty()) persist(obj);
-        else if (old.get().getLast_update().before(obj.getLast_update()))
-            update(old.get().getChangeQuery(obj) + " where id = " + obj.getId());
-
+        PanacheQuery<Building> old = find("external_id", obj.getExternal_id());
+        if (old.count() == 0) {
+            persist(obj);
+        } else {
+            if (old.firstResult().getLast_update().before(obj.getLast_update()))
+                update(old.firstResult().getChangeQuery(obj) + " where id = " + obj.getId());
+        }
     }
 
+    @Transactional
     public void addOrModify(JsonObject obj) {
         addOrModify(new Building(obj));
     }
